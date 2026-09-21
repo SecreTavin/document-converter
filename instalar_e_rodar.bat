@@ -2,7 +2,7 @@
 setlocal enabledelayedexpansion
 cd /d "%~dp0"
 
-set "DIST_EXE=dist\ConversorDeDocumentos\ConversorDeDocumentos.exe"
+set "DIST_EXE=dist\ConversorDeDocumentos.exe"
 
 if exist "%DIST_EXE%" (
     echo Abrindo o Conversor de Documentos...
@@ -72,7 +72,7 @@ if "%LIBREOFFICE_OK%"=="0" (
 )
 
 echo Gerando o programa (ConversorDeDocumentos.exe)...
-venv\Scripts\pyinstaller.exe --name "ConversorDeDocumentos" --windowed --onedir --noconfirm src\main.py
+venv\Scripts\pyinstaller.exe --name "ConversorDeDocumentos" --windowed --onefile --noconfirm --collect-all tkinterdnd2 --collect-all numpy src\main.py
 if errorlevel 1 (
     echo [ERRO] Nao foi possivel gerar o executavel. Veja as mensagens acima.
     pause

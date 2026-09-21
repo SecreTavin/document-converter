@@ -58,3 +58,66 @@ def compress_pdf(pdf_path: str, output_path: str) -> str:
     finally:
         doc.close()
     return output_path
+
+
+class WrongPasswordError(RuntimeError):
+    """Levantado quando a senha informada não abre o PDF."""
+
+
+def add_password(pdf_path: str, password: str, output_path: str) -> str:
+    """Protege um PDF com senha (necessária para abri-lo depois)."""
+    reader = PdfReader(pdf_path)
+    writer = PdfWriter()
+    writer.append(reader)
+    writer.encrypt(password)
+    with open(output_path, "wb") as f:
+        writer.write(f)
+    return output_path
+
+
+def remove_password(pdf_path: str, password: str, output_path: str) -> str:
+    """Remove a senha de um PDF protegido, a partir da senha atual."""
+    reader = PdfReader(pdf_path)
+    if reader.is_encrypted:
+        if not reader.decrypt(password):
+            raise WrongPasswordError("Senha incorreta.")
+    writer = PdfWriter()
+    writer.append(reader)
+    with open(output_path, "wb") as f:
+        writer.write(f)
+    return output_path
+
+
+def rotate_pages(pdf_path: str, output_path: str, rotation: int) -> str:
+    """Rotaciona todas as páginas de um PDF em `rotation` graus (90, 180 ou 270)."""
+    reader = PdfReader(pdf_path)
+    writer = PdfWriter()
+    for page in reader.pages:
+        page.rotate(rotation)
+        writer.add_page(page)
+    with open(output_path, "wb") as f:
+        writer.write(f)
+    return output_path
+
+
+def add_watermark(pdf_path: str, output_path: str, text: str, opacity: float = 0.3) -> str:
+    """Adiciona uma marca d'água de texto, diagonal, em todas as páginas de um PDF."""
+    doc = fitz.open(pdf_path)
+    try:
+        for page in doc:
+            rect = page.rect
+            fontsize = max(24, int(min(rect.width, rect.height) / 10))
+            point = fitz.Point(rect.width / 4, rect.height / 2)
+            page.insert_text(
+                point,
+                text,
+                fontsize=fontsize,
+                color=(0.5, 0.5, 0.5),
+                fill_opacity=opacity,
+                overlay=True,
+                morph=(point, fitz.Matrix(45)),
+            )
+        doc.save(output_path)
+    finally:
+        doc.close()
+    return output_path
