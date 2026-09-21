@@ -71,6 +71,21 @@ if "%LIBREOFFICE_OK%"=="0" (
     echo.
 )
 
+set "TESSERACT_OK=0"
+where tesseract >nul 2>nul
+if not errorlevel 1 set "TESSERACT_OK=1"
+if exist "%ProgramFiles%\Tesseract-OCR\tesseract.exe" set "TESSERACT_OK=1"
+
+if "%TESSERACT_OK%"=="0" (
+    echo.
+    echo [AVISO] Tesseract OCR nao foi encontrado neste computador.
+    echo Ele so e necessario para a aba de OCR ^(PDFs escaneados^).
+    echo As demais conversoes funcionam normalmente sem ele.
+    echo Para instalar ^(marque o pacote de idioma "Portuguese" no instalador^):
+    echo https://github.com/UB-Mannheim/tesseract/wiki
+    echo.
+)
+
 echo Gerando o programa (ConversorDeDocumentos.exe)...
 venv\Scripts\pyinstaller.exe --name "ConversorDeDocumentos" --windowed --onefile --noconfirm --collect-all tkinterdnd2 --collect-all numpy src\main.py
 if errorlevel 1 (

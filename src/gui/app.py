@@ -6,7 +6,7 @@ from tkinter import filedialog, messagebox
 import customtkinter as ctk
 from tkinterdnd2 import DND_FILES, TkinterDnD
 
-from converters import image_convert, image_pdf, office_pdf, pdf_utils
+from converters import image_convert, image_pdf, ocr, office_pdf, pdf_utils
 
 ctk.set_appearance_mode("system")
 ctk.set_default_color_theme("blue")
@@ -494,6 +494,76 @@ class PdfSecurityTab(BaseTab):
         self.run_batch(self.watermark_files, convert_one)
 
 
+class OcrTab(BaseTab):
+    """OCR de PDFs escaneados: gera PDF pesquisável ou extrai o texto para Word."""
+
+    def __init__(self, master):
+        super().__init__(master)
+        self.grid_columnconfigure(0, weight=1)
+        self.pdf_files = []
+
+        ctk.CTkLabel(
+            self,
+            text="PDFs escaneados (sem texto selecionável)",
+            font=ctk.CTkFont(weight="bold"),
+        ).grid(row=0, column=0, sticky="w", padx=10, pady=(10, 0))
+        DropZone(self, PDF_EXTENSIONS, {".pdf"}, self._set_pdf_files).grid(
+            row=1, column=0, sticky="ew", padx=10, pady=6
+        )
+
+        options_row = ctk.CTkFrame(self, fg_color="transparent")
+        options_row.grid(row=2, column=0, sticky="w", padx=10)
+        ctk.CTkLabel(options_row, text="Idioma do texto:").pack(side="left", padx=(0, 8))
+        self.language_var = ctk.StringVar(value="Português")
+        ctk.CTkOptionMenu(options_row, values=list(ocr.LANGUAGES.keys()), variable=self.language_var).pack(
+            side="left"
+        )
+
+        buttons_row = ctk.CTkFrame(self, fg_color="transparent")
+        buttons_row.grid(row=3, column=0, sticky="w", padx=10, pady=(10, 0))
+        ctk.CTkButton(buttons_row, text="Tornar PDF pesquisável", command=self.make_searchable).pack(
+            side="left", padx=(0, 8)
+        )
+        ctk.CTkButton(buttons_row, text="Converter texto para Word", command=self.convert_to_docx).pack(side="left")
+
+        self.build_status_box(row=4)
+
+    def _set_pdf_files(self, paths):
+        self.pdf_files = paths
+
+    def make_searchable(self):
+        if not self.pdf_files:
+            self.clear_log()
+            self.log("Selecione ao menos um PDF escaneado primeiro.")
+            return
+        output_dir = filedialog.askdirectory(title="Selecione a pasta de destino")
+        if not output_dir:
+            return
+        lang = ocr.LANGUAGES[self.language_var.get()]
+
+        def convert_one(path):
+            out_path = str(Path(output_dir) / f"{Path(path).stem}_pesquisavel.pdf")
+            ocr.ocr_pdf(path, out_path, lang=lang)
+
+        self.run_batch(self.pdf_files, convert_one)
+
+    def convert_to_docx(self):
+        if not self.pdf_files:
+            self.clear_log()
+            self.log("Selecione ao menos um PDF escaneado primeiro.")
+            return
+        output_dir = filedialog.askdirectory(title="Selecione a pasta de destino")
+        if not output_dir:
+            return
+        lang = ocr.LANGUAGES[self.language_var.get()]
+
+        def convert_one(path):
+            out_path = str(Path(output_dir) / Path(path).with_suffix(".docx").name)
+            ocr.ocr_pdf_to_docx(path, out_path, lang=lang)
+
+        self.run_batch(self.pdf_files, convert_one)
+
+
 class ImageConvertTab(BaseTab):
     """Conversão de imagens entre formatos, em lote."""
 
@@ -552,7 +622,14 @@ class App(ctk.CTk, TkinterDnD.DnDWrapper):
         tabview = ctk.CTkTabview(self)
         tabview.pack(fill="both", expand=True, padx=10, pady=10)
 
-        tab_names = ["PDF ↔ Office", "Imagens ↔ PDF", "Utilitários de PDF", "Segurança de PDF", "Conversão de Imagens"]
+        tab_names = [
+            "PDF ↔ Office",
+            "Imagens ↔ PDF",
+            "Utilitários de PDF",
+            "Segurança de PDF",
+            "OCR",
+            "Conversão de Imagens",
+        ]
         for name in tab_names:
             tabview.add(name)
 
@@ -560,6 +637,7 @@ class App(ctk.CTk, TkinterDnD.DnDWrapper):
         ImagePdfTab(tabview.tab("Imagens ↔ PDF")).pack(fill="both", expand=True)
         PdfUtilsTab(tabview.tab("Utilitários de PDF")).pack(fill="both", expand=True)
         PdfSecurityTab(tabview.tab("Segurança de PDF")).pack(fill="both", expand=True)
+        OcrTab(tabview.tab("OCR")).pack(fill="both", expand=True)
         ImageConvertTab(tabview.tab("Conversão de Imagens")).pack(fill="both", expand=True)
 
 

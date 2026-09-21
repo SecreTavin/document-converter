@@ -11,6 +11,8 @@ computador — nenhum arquivo é enviado para a internet.
 - **Imagens ↔ PDF**: juntar imagens em um PDF e extrair páginas de um PDF como imagens.
 - **Utilitários de PDF**: juntar, dividir, comprimir e rotacionar páginas.
 - **Segurança de PDF**: proteger com senha, remover senha e adicionar marca d'água.
+- **OCR**: reconhece o texto de PDFs escaneados, gerando um PDF pesquisável ou
+  extraindo o texto para Word.
 - **Conversão de imagens**: JPG ↔ PNG ↔ WEBP ↔ BMP.
 - **Conversão em lote**: todas as operações acima aceitam vários arquivos de uma vez.
 - **Arrastar e soltar**: arraste os arquivos direto para a janela do programa, ou
@@ -21,6 +23,8 @@ computador — nenhum arquivo é enviado para a internet.
 - Python 3.11+
 - [LibreOffice](https://www.libreoffice.org/download/) instalado (apenas necessário
   para converter Word/Excel/PowerPoint → PDF)
+- [Tesseract OCR](https://github.com/UB-Mannheim/tesseract/wiki) instalado (apenas
+  necessário para a aba de OCR). No macOS: `brew install tesseract tesseract-lang`.
 
 ## Configuração do ambiente
 
@@ -77,12 +81,12 @@ Na primeira vez, o script sozinho:
 
 1. Confere se o Python está instalado (se não estiver, ele avisa e dá o link para instalar).
 2. Cria o ambiente virtual e instala todas as dependências.
-3. Gera o `ConversorDeDocumentos.exe` dentro de `dist/ConversorDeDocumentos/`.
+3. Gera o `ConversorDeDocumentos.exe` dentro de `dist/`.
 4. Abre o programa automaticamente.
 
 Da segunda vez em diante, dar duplo clique no `.bat` (ou direto no `.exe` gerado)
 já abre o programa na hora, sem repetir a instalação. Vale criar um atalho do
-`dist/ConversorDeDocumentos/ConversorDeDocumentos.exe` na Área de Trabalho.
+`dist/ConversorDeDocumentos.exe` na Área de Trabalho.
 
 Se aparecer o aviso do Windows Defender/SmartScreen ("Windows protegeu o computador"),
 é porque o executável não é assinado digitalmente (normal para apps caseiros) — basta
@@ -99,12 +103,12 @@ src/
     office_pdf.py       # PDF <-> Word/Excel/PowerPoint
     image_pdf.py         # Imagens <-> PDF
     pdf_utils.py          # juntar/dividir/comprimir/rotacionar/senha/marca d'água
+    ocr.py                 # OCR de PDFs escaneados
     image_convert.py       # conversão entre formatos de imagem
 ```
 
 ## Roadmap
 
-- [ ] OCR para PDFs escaneados (torná-los pesquisáveis e convertíveis para Word)
 - [ ] Suporte a Excel/PowerPoint → estrutura editável (hoje só PDF → Word tem
       reconstrução de layout completa)
 - [ ] Compressão de PDF com controle de qualidade de imagem
