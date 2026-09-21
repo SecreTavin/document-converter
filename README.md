@@ -45,7 +45,7 @@ python src/main.py
 ### macOS
 
 ```bash
-pyinstaller --name "ConversorDeDocumentos" --windowed --onefile --collect-all tkinterdnd2 --collect-all numpy src/main.py
+pyinstaller --name "ConversorDeDocumentos" --windowed --onefile --icon assets/icon.icns --collect-all tkinterdnd2 --collect-all numpy src/main.py
 ```
 
 O app fica em `dist/ConversorDeDocumentos.app`.
@@ -53,7 +53,7 @@ O app fica em `dist/ConversorDeDocumentos.app`.
 ### Windows
 
 ```bash
-pyinstaller --name "ConversorDeDocumentos" --windowed --onefile --collect-all tkinterdnd2 --collect-all numpy src/main.py
+pyinstaller --name "ConversorDeDocumentos" --windowed --onefile --icon assets\icon.ico --collect-all tkinterdnd2 --collect-all numpy src/main.py
 ```
 
 O executável fica em `dist/ConversorDeDocumentos.exe` (um único arquivo).
@@ -71,6 +71,33 @@ O executável fica em `dist/ConversorDeDocumentos.exe` (um único arquivo).
 > O build precisa ser feito em cada sistema operacional separadamente (o PyInstaller
 > não faz cross-compilation). Ou seja: gere o `.app` rodando no Mac e o `.exe` rodando
 > em uma máquina Windows.
+
+### macOS — gerar o `.dmg` pronto para distribuir
+
+```bash
+./build_macos.sh
+```
+
+Gera `dist/ConversorDeDocumentos.app` e empacota em `dist/ConversorDeDocumentos.dmg`
+(com um atalho para a pasta Aplicativos, como qualquer instalador de app do Mac).
+Como o app não é assinado com um certificado de desenvolvedor Apple, ao abrir pela
+primeira vez pode aparecer um aviso do Gatekeeper — clique com o botão direito no
+app → **Abrir** → **Abrir mesmo assim**.
+
+### Windows — instalador `.exe` (opcional, mais "profissional")
+
+Além do `instalar_e_rodar.bat` (que já resolve tudo sozinho), dá para gerar um
+instalador de verdade, com atalho no Menu Iniciar e desinstalador:
+
+1. Gere `dist/ConversorDeDocumentos.exe` (via `instalar_e_rodar.bat` ou o comando
+   pyinstaller acima).
+2. Instale o [Inno Setup](https://jrsoftware.org/isinfo.php) (gratuito).
+3. Abra `installer_windows.iss` com o Inno Setup Compiler e clique em **Compile**.
+4. O instalador final fica em `installer_output/ConversorDeDocumentos_Setup.exe`.
+
+> Esse passo é opcional e precisa ser feito em uma máquina Windows (o Inno Setup só
+> roda no Windows, não foi possível testar esse `.iss` a partir do Mac). Para o uso
+> do dia a dia, o `instalar_e_rodar.bat` já é suficiente.
 
 ### Windows — jeito simples (para quem não mexe com programação)
 
@@ -113,4 +140,3 @@ src/
       reconstrução de layout completa)
 - [ ] Compressão de PDF com controle de qualidade de imagem
 - [ ] Reordenar páginas pela interface (a função já existe em `pdf_utils.reorder_pages`)
-- [ ] Ícone e instalador (.dmg / .msi)

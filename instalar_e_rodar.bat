@@ -87,7 +87,7 @@ if "%TESSERACT_OK%"=="0" (
 )
 
 echo Gerando o programa (ConversorDeDocumentos.exe)...
-venv\Scripts\pyinstaller.exe --name "ConversorDeDocumentos" --windowed --onefile --noconfirm --collect-all tkinterdnd2 --collect-all numpy src\main.py
+venv\Scripts\pyinstaller.exe --name "ConversorDeDocumentos" --windowed --onefile --noconfirm --icon "assets\icon.ico" --collect-all tkinterdnd2 --collect-all numpy src\main.py
 if errorlevel 1 (
     echo [ERRO] Nao foi possivel gerar o executavel. Veja as mensagens acima.
     pause
